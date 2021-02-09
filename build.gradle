@@ -6,47 +6,47 @@ buildscript {
 }
 
 plugins {
-    id 'application'
+    id "application"
 
-    id 'com.github.jakemarsden.git-hooks' version '0.0.1'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id 'io.gitlab.arturbosch.detekt' version '1.13.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
-    id 'com.squareup.sqldelight' version '1.4.3'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
+    id "com.github.jakemarsden.git-hooks" version "0.0.1"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "io.gitlab.arturbosch.detekt" version "1.13.1"
+    id "org.jetbrains.kotlin.jvm" version "1.4.30"
+    id "com.squareup.sqldelight" version "1.4.3"
+    id "org.jetbrains.kotlin.plugin.serialization" version "1.4.30"
 }
 
-group 'net.fabricmc.bot'
+group "net.fabricmc.bot"
 targetCompatibility = 1.11
-version '1.0-SNAPSHOT'
+version "1.0-SNAPSHOT"
 
 repositories {
     mavenLocal()
-    jcenter()
+    // jcenter() is dead
 
     maven {
-        name = 'Kord'
-        url = 'https://dl.bintray.com/kordlib/Kord'
+        name = "Kord"
+        url = "https://dl.bintray.com/kordlib/Kord"
     }
 
     maven {
-        name = 'Fabric'
-        url = 'https://maven.fabricmc.net/'
+        name = "Fabric"
+        url = "https://maven.fabricmc.net/"
     }
 
     maven {
-        name = 'KotDis'
-        url = 'https://maven.kotlindiscord.com/repository/maven-snapshots/'
+        name = "KotDis"
+        url = "https://maven.kotlindiscord.com/repository/maven-snapshots/"
     }
 
     maven {
-        name = 'Eclipse'
-        url = 'https://repo.eclipse.org/content/groups/releases/'
+        name = "Eclipse"
+        url = "https://repo.eclipse.org/content/groups/releases/"
     }
 
     maven {
-        name = 'JitPack'
-        url = 'https://jitpack.io'
+        name = "JitPack"
+        url = "https://jitpack.io"
     }
 }
 
@@ -56,54 +56,59 @@ dependencies {
 
     // Kotlin deps
     implementation platform('org.jetbrains.kotlin:kotlin-bom')
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // Kord Extensions framework
-    implementation 'com.kotlindiscord.kord.extensions:kord-extensions:1.3-SNAPSHOT'
+    implementation("com.kotlindiscord.kord.extensions:kord-extensions:1.3-SNAPSHOT")
 
     // Config framework
-    implementation 'com.uchuhimo:konf:0.23.0'
-    implementation 'com.uchuhimo:konf-toml:0.23.0'
+    implementation("com.uchuhimo:konf:0.23.0")
+    implementation("com.uchuhimo:konf-toml:0.23.0")
 
     // Logging deps
-    implementation 'ch.qos.logback:logback-classic:1.2.3'
-    implementation 'io.github.microutils:kotlin-logging:2.0.3'
-    implementation 'org.codehaus.groovy:groovy:3.0.4'  // For logback config
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("io.github.microutils:kotlin-logging:2.0.3")
+    implementation("org.codehaus.groovy:groovy:3.0.4")  // For logback config
 
     // Guava
-    implementation "com.google.guava:guava:29.0-jre"
+    implementation("com.google.guava:guava:29.0-jre")
 
     // Database: https://cashapp.github.io/sqldelight/jvm_mysql/
-    implementation 'com.squareup.sqldelight:coroutines-extensions-jvm:1.4.3'
-    implementation 'com.squareup.sqldelight:jdbc-driver:1.4.3'
-    implementation 'com.zaxxer:HikariCP:3.4.5'
-    implementation 'org.mariadb.jdbc:mariadb-java-client:2.6.+'
+    implementation("com.squareup.sqldelight:coroutines-extensions-jvm:1.4.3")
+    implementation("com.squareup.sqldelight:jdbc-driver:1.4.3")
+    implementation("com.zaxxer:HikariCP:3.4.5")
+    implementation("org.mariadb.jdbc:mariadb-java-client:2.6.+")
 
     // Tags
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r'
-    implementation project(':tags')
+    implementation("org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r")
+    implementation(project(":tags"))
 
     // URL Filtering
-    implementation 'org.nibor.autolink:autolink:0.10.0'
+    implementation("org.nibor.autolink:autolink:0.10.0")
 
     // Mappings
-    implementation 'net.fabricmc:tiny-mappings-parser:+'
+    implementation("net.fabricmc:tiny-mappings-parser:+")
 
     // HTTP (Already used by kord)
-    implementation 'io.ktor:ktor-http:1.4.0'
-    implementation 'io.ktor:ktor-client-cio:1.4.0'
+    implementation("io.ktor:ktor-http:1.4.0")
+    implementation("io.ktor:ktor-client-cio:1.4.0")
 
     // Memoization
-    implementation 'com.github.aballano:mnemonik:2.0.1'
+    implementation("com.github.aballano:mnemonik:2.0.1")
 }
 
 application {
-    mainClassName = 'net.fabricmc.bot.AppKt'
+    mainClass.set("net.fabricmc.bot.AppKt")
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = '11'
+    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.useIR = true
+    kotlinOptions.freeCompilerArgs = [
+            "-XXLanguage:+NewInference",
+            "-Xopt-in=kotlin.RequiresOptIn"
+    ]
 }
 
 detekt {
@@ -112,7 +117,7 @@ detekt {
 }
 
 gitHooks {
-    hooks = ['pre-commit': 'detekt']
+    hooks = ["pre-commit": "detekt"]
 }
 
 sqldelight {
@@ -135,14 +140,7 @@ jar {
 }
 
 compileKotlin.configure {
-    dependsOn "generateMainFabricBotDBMigrations"
-}
-
-compileKotlin {
-    kotlinOptions.freeCompilerArgs = [
-            "-XXLanguage:+NewInference",
-            "-Xopt-in=kotlin.RequiresOptIn"
-    ]
+    dependsOn("generateMainFabricBotDBMigrations")
 }
 
 processResources {
