@@ -52,10 +52,10 @@ repositories {
 
 dependencies {
     // Linter
-    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.13.1"
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.13.1")
 
     // Kotlin deps
-    implementation platform('org.jetbrains.kotlin:kotlin-bom')
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
