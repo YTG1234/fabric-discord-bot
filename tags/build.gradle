@@ -6,66 +6,71 @@ buildscript {
 }
 
 plugins {
-    id 'application'
+    id "application"
 
-    id 'io.gitlab.arturbosch.detekt'
-    id 'com.github.johnrengelman.shadow'
-    id 'org.jetbrains.kotlin.jvm'
-    id 'org.jetbrains.kotlin.plugin.serialization'
+    id "io.gitlab.arturbosch.detekt"
+    id "com.github.johnrengelman.shadow"
+    id "org.jetbrains.kotlin.jvm"
+    id "org.jetbrains.kotlin.plugin.serialization"
 }
 
-group 'net.fabricmc.bot.tags'
+group "net.fabricmc.bot.tags"
 targetCompatibility = 1.11
 version '1.0-SNAPSHOT'
 
 repositories {
     mavenLocal()
-    jcenter()
+    // jcenter() is dead
 
     maven {
-        name = 'Kord'
-        url = 'https://dl.bintray.com/kordlib/Kord'
+        name = "Kord"
+        url = "https://dl.bintray.com/kordlib/Kord"
     }
 
     maven {
-        name = 'KotDis'
-        url = 'https://maven.kotlindiscord.com/repository/maven-snapshots/'
+        name = "KotDis"
+        url = "https://maven.kotlindiscord.com/repository/maven-snapshots/"
     }
 
     maven {
-        name = 'Eclipse'
-        url = 'https://repo.eclipse.org/content/groups/releases/'
+        name = "Eclipse"
+        url = "https://repo.eclipse.org/content/groups/releases/"
     }
 }
 
 dependencies {
     // Linter
-    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.13.1"
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.13.1")
 
     // Kotlin deps
-    implementation platform('org.jetbrains.kotlin:kotlin-bom')
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // Kord Extensions framework (for Discord objects)
-    implementation 'com.kotlindiscord.kord.extensions:kord-extensions:1.2-SNAPSHOT'
+    implementation("com.kotlindiscord.kord.extensions:kord-extensions:1.2-SNAPSHOT")
 
     // Logging deps
-    implementation 'ch.qos.logback:logback-classic:1.2.3'
-    implementation 'io.github.microutils:kotlin-logging:2.0.3'
-    implementation 'org.codehaus.groovy:groovy:3.0.4'  // For logback config
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("io.github.microutils:kotlin-logging:2.0.3")
+    implementation("org.codehaus.groovy:groovy:3.0.4")  // For logback config
 
     // Tags
-    api 'com.charleskorn.kaml:kaml:0.23.0'
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.0.0-RC"
+    api("com.charleskorn.kaml:kaml:0.23.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.0.0-RC")
 }
 
 application {
-    mainClassName = "net.fabricmc.bot.tags.AppKt"
+    mainClass.set("net.fabricmc.bot.tags.AppKt")
 }
 
 compileKotlin {
     kotlinOptions.jvmTarget = "11"
+    kotlinOptions.useIR = true
+    kotlinOptions.freeCompilerArgs = [
+            "-XXLanguage:+NewInference",
+            "-Xopt-in=kotlin.RequiresOptIn"
+    ]
 }
 
 detekt {
@@ -81,21 +86,14 @@ jar {
     }
 }
 
-compileKotlin {
-    kotlinOptions.freeCompilerArgs = [
-            "-XXLanguage:+NewInference",
-            "-Xopt-in=kotlin.RequiresOptIn"
-    ]
-}
-
 processResources {
-    dependsOn "generateBuildInfo"
+    dependsOn("generateBuildInfo")
 
-    from "src/main/resources/build.properties"
+    from("src/main/resources/build.properties")
 }
 
 task generateBuildInfo() {
-    outputs.files "src/main/resources/build.properties"
+    outputs.files("src/main/resources/build.properties")
 
     doLast {
         new File("src/main/resources/build.properties").text = """
