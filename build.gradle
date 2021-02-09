@@ -9,9 +9,9 @@ plugins {
     id "org.jetbrains.kotlin.plugin.serialization" version "1.4.30"
 }
 
-group "net.fabricmc.bot"
+group = "net.fabricmc.bot"
 targetCompatibility = 1.11
-version "1.0-SNAPSHOT"
+version = "1.0-SNAPSHOT"
 
 allprojects {
 	buildscript {
