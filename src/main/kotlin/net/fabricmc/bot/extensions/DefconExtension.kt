@@ -1,7 +1,5 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.core.event.gateway.ReadyEvent
-import com.gitlab.kordlib.core.event.guild.MemberJoinEvent
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.inGuild
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
@@ -10,6 +8,8 @@ import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.utils.dm
 import com.kotlindiscord.kord.extensions.utils.respond
+import dev.kord.core.event.gateway.ReadyEvent
+import dev.kord.core.event.guild.MemberJoinEvent
 import net.fabricmc.bot.conf.config
 import net.fabricmc.bot.constants.Colours
 import net.fabricmc.bot.defaultCheck
@@ -48,17 +48,17 @@ class DefconExtension(bot: ExtensibleBot) : Extension(bot) {
             check { it.member.isNew() }
 
             action {
-                it.member.dm(KICK_MESSAGE)
-                it.member.kick("DEFCON enforcement")
+                event.member.dm(KICK_MESSAGE)
+                event.member.kick("DEFCON enforcement")
 
                 alert(false) {
                     title = "DEFCON enforcement"
                     description = "Prevented a user from joining as their account was created within the last " +
                             "three days.\n\n" +
 
-                            "**User ID:** `${it.member.id.longValue}`\n" +
-                            "**User tag:** `${it.member.tag}`\n" +
-                            "**Creation date:** `${instantToDisplay(it.member.id.timeStamp)}`"
+                            "**User ID:** `${event.member.id.value}`\n" +
+                            "**User tag:** `${event.member.tag}`\n" +
+                            "**Creation date:** `${instantToDisplay(event.member.id.timeStamp)}`"
 
                     color = Colours.NEGATIVE
                 }

@@ -1,20 +1,25 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.core.behavior.channel.createMessage
-import com.gitlab.kordlib.core.entity.Embed
-import com.gitlab.kordlib.core.entity.channel.GuildMessageChannel
-import com.gitlab.kordlib.core.event.gateway.ReadyEvent
-import com.gitlab.kordlib.core.event.message.MessageCreateEvent
 import com.kotlindiscord.kord.extensions.ExtensibleBot
-import com.kotlindiscord.kord.extensions.Paginator
 import com.kotlindiscord.kord.extensions.commands.converters.coalescedString
 import com.kotlindiscord.kord.extensions.commands.converters.string
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.pagination.Paginator
+import com.kotlindiscord.kord.extensions.pagination.pages.Page
+import com.kotlindiscord.kord.extensions.pagination.pages.Pages
 import com.kotlindiscord.kord.extensions.utils.deleteWithDelay
 import com.kotlindiscord.kord.extensions.utils.respond
 import com.kotlindiscord.kord.extensions.utils.runSuspended
+import dev.kord.common.Color
+import dev.kord.common.annotation.KordPreview
+import dev.kord.common.entity.optional.value
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.createMessage
+import dev.kord.core.entity.Embed
+import dev.kord.core.entity.channel.GuildMessageChannel
+import dev.kord.core.event.gateway.ReadyEvent
+import dev.kord.core.event.message.MessageCreateEvent
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,7 +34,6 @@ import net.fabricmc.bot.tags.*
 import net.fabricmc.bot.utils.ensureRepo
 import net.fabricmc.bot.utils.requireBotChannel
 import org.eclipse.jgit.api.MergeResult
-import java.awt.Color
 import java.lang.Integer.max
 import java.nio.file.Path
 import java.time.Instant
@@ -55,6 +59,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
     private val parser = TagParser(Path.of(config.git.directory, name, config.git.tagsRepoPath).toString())
     private var checkJob: Job? = null
 
+    @OptIn(KordPreview::class)
     override suspend fun setup() {
         event<ReadyEvent> {
             action {
@@ -68,9 +73,9 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                     var description = "The following errors were encountered while loading tags.\n\n"
 
                     description += errors.toList()
-                            .sortedBy { it.first }
-                            .take(MAX_ERRORS)
-                            .joinToString("\n\n") { "**${it.first} »** ${it.second}" }
+                        .sortedBy { it.first }
+                        .take(MAX_ERRORS)
+                        .joinToString("\n\n") { "**${it.first} »** ${it.second}" }
 
                     if (errors.size > MAX_ERRORS) {
                         description += "\n\n**...plus ${errors.size - MAX_ERRORS} more.**"
@@ -147,7 +152,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
             check { it.message.content.startsWith(config.tagPrefix) }
 
             action {
-                val givenArgs = it.message.content.removePrefix(config.tagPrefix)
+                val givenArgs = event.message.content.removePrefix(config.tagPrefix)
 
                 if (givenArgs.isEmpty() || givenArgs.startsWith(' ')) {
                     return@action
@@ -159,21 +164,21 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
 
                 if (tags.isEmpty()) {
                     if (tagName.replace("?", "").isNotBlank()) {
-                        it.message.respond("No such tag: `$tagName`").deleteWithDelay(DELETE_DELAY)
-                        it.message.deleteWithDelay(DELETE_DELAY)
+                        event.message.respond("No such tag: `$tagName`").deleteWithDelay(DELETE_DELAY)
+                        event.message.deleteWithDelay(DELETE_DELAY)
                     }
 
                     return@action
                 }
 
                 if (tags.size > 1) {
-                    it.message.respond(
-                            "Multiple tags have been found with that name. " +
-                                    "Please pick one of the following:\n\n" +
+                    event.message.respond(
+                        "Multiple tags have been found with that name. " +
+                                "Please pick one of the following:\n\n" +
 
-                                    tags.joinToString(", ") { t -> "`${t.name}`" }
+                                tags.joinToString(", ") { t -> "`${t.name}`" }
                     ).deleteWithDelay(DELETE_DELAY)
-                    it.message.deleteWithDelay(DELETE_DELAY)
+                    event.message.deleteWithDelay(DELETE_DELAY)
 
                     return@action
                 }
@@ -186,17 +191,17 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                     tag = parser.getTag(data.target)
 
                     if (tag == null) {
-                        it.message.respond(
-                                "Invalid alias - no such alias target: " +
-                                        "`$tagName` -> `${data.target}`"
+                        event.message.respond(
+                            "Invalid alias - no such alias target: " +
+                                    "`$tagName` -> `${data.target}`"
                         )
                         return@action
                     }
 
                     if (tag.data is AliasTag) {
-                        it.message.respond(
-                                "Invalid alias - this alias points to another alias: " +
-                                        "`$tagName` -> `${data.target}`"
+                        event.message.respond(
+                            "Invalid alias - this alias points to another alias: " +
+                                    "`$tagName` -> `${data.target}`"
                         )
                         return@action
                     }
@@ -205,12 +210,12 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                 val markdown = try {
                     substitute(tag.markdown, args)
                 } catch (e: TagMissingArgumentException) {
-                    it.message.respond(e.toString())
+                    event.message.respond(e.toString())
                     return@action
                 }
 
                 if (tag.data is TextTag) {
-                    it.message.channel.createMessage {
+                    event.message.channel.createMessage {
                         content = markdown!!  // If it's a text tag, the markdown is not null
 
                         allowedMentions { }  // Nope
@@ -218,25 +223,30 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                 } else if (tag.data is EmbedTag) {
                     val data = tag.data as EmbedTag
 
-                    it.message.channel.createEmbed {
+                    event.message.channel.createEmbed {
                         Embed(data.embed, bot.kord).apply(this)
 
-                        data.embed.fields.forEach {
+                        (data.embed.fields.value ?: listOf()).forEach {
                             // They'll fix this, but for now...
                             field {
-                                inline = it.inline ?: false
+                                inline = it.inline.value ?: false
 
                                 name = it.name
                                 value = it.value
                             }
                         }
 
-                        description = markdown ?: data.embed.description
+                        description = markdown ?: data.embed.description.value
 
                         if (data.colour != null) {
                             val colourString = data.colour!!.toLowerCase()
 
-                            color = Colours.fromName(colourString) ?: Color.decode(colourString)
+                            val values = colourString.removePrefix("#").chunked(2)
+                            color = Colours.fromName(colourString) ?: Color(
+                                Integer.parseInt(values[0], sixteen),
+                                Integer.parseInt(values[1], sixteen),
+                                Integer.parseInt(values[2], sixteen)
+                            )
                         }
                     }
                 }
@@ -381,7 +391,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                             } else if (tag.data is EmbedTag) {
                                 val data = tag.data as EmbedTag
 
-                                for (field in data.embed.fields) {
+                                for (field in data.embed.fields.value ?: listOf()) {
                                     if (field.name.contains(query)) {
                                         embedFieldMatches.add(name)
                                         break
@@ -407,7 +417,8 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                         "Please try again with a different query!"
                             }
                         } else {
-                            val pages = mutableListOf<String>()
+                            val pages = Pages()
+                            val title = "Search: $totalMatches match" + if (totalMatches > 1) "es" else ""
 
                             if (nameMatches.isNotEmpty()) {
                                 nameMatches.chunked(CHUNK_SIZE).forEach {
@@ -417,7 +428,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                         page += "**»** `${match}`\n"
                                     }
 
-                                    pages.add(page)
+                                    pages.addPage(Page(page, title))
                                 }
                             }
 
@@ -429,7 +440,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                         page += "**»** `${match}`\n"
                                     }
 
-                                    pages.add(page)
+                                    pages.addPage(Page(page, title))
                                 }
                             }
 
@@ -441,7 +452,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                         page += "**»** `${match}`\n"
                                     }
 
-                                    pages.add(page)
+                                    pages.addPage(Page(page, title))
                                 }
                             }
 
@@ -453,18 +464,18 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                         page += "`${pair.first}` **»** `${pair.second}`\n"
                                     }
 
-                                    pages.add(page)
+                                    pages.addPage(Page(page, title))
                                 }
                             }
 
                             val paginator = Paginator(
-                                    bot,
-                                    message.channel,
-                                    "Search: $totalMatches match" + if (totalMatches > 1) "es" else "",
-                                    pages,
-                                    message.author,
-                                    PAGE_TIMEOUT,
-                                    true
+                                bot,
+                                message.channel,
+                                message,
+                                pages,
+                                message.author,
+                                PAGE_TIMEOUT,
+                                true
                             )
 
                             paginator.send()
@@ -496,7 +507,8 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                         }
                     }
 
-                    val pages = mutableListOf<String>()
+                    val title = "All tags (${parser.tags.size})"
+                    val pages = Pages()
 
                     if (otherTags.isNotEmpty()) {
                         otherTags.sortBy { it.name }
@@ -507,7 +519,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                 page += "**»** `${tag.name}`\n"
                             }
 
-                            pages.add(page)
+                            pages.addPage(Page(page, title))
                         }
                     }
 
@@ -522,18 +534,18 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
                                 page += "`${alias.name}` **»** `${data.target}`\n"
                             }
 
-                            pages.add(page)
+                            pages.addPage(Page(page, title))
                         }
                     }
 
                     val paginator = Paginator(
-                            bot,
-                            message.channel,
-                            "All tags (${parser.tags.size})",
-                            pages,
-                            message.author,
-                            PAGE_TIMEOUT,
-                            true
+                        bot,
+                        message.channel,
+                        message,
+                        pages,
+                        message.author,
+                        PAGE_TIMEOUT,
+                        true
                     )
 
                     paginator.send()
@@ -620,5 +632,9 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
     @Suppress("UndocumentedPublicProperty")
     class TagSearchArgs : Arguments() {
         val query by coalescedString("query")
+    }
+
+    companion object {
+        private const val sixteen = 16 // I hate detekt
     }
 }

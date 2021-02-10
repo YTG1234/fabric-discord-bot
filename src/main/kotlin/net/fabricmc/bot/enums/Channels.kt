@@ -15,6 +15,9 @@ enum class Channels(val value: String) {
     /** The category used for action logging. **/
     ACTION_LOG_CATEGORY("action-log"),
 
-    /** The channel used for staff action logging.. **/
+    /** The channel used for staff action logging. **/
     MODERATOR_LOG("moderator-log"),
+
+    /** The channel where people post their logs. */
+    PLAYER_SUPPORT("player-support"),
 }

@@ -1,6 +1,6 @@
 package net.fabricmc.bot.extensions.infractions
 
-import com.gitlab.kordlib.core.entity.User
+import dev.kord.core.entity.User
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -70,5 +70,5 @@ fun getMemberId(member: User?, id: Long?) =
         } else if (member != null && id != null) {
             Pair(null, "Please specify exactly one user argument, not two.")
         } else {
-            Pair(member?.id?.longValue ?: id!!, null)
+            Pair(member?.id?.value ?: id!!, null)
         }

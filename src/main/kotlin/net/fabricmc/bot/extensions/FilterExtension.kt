@@ -1,10 +1,10 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.core.event.message.MessageCreateEvent
-import com.gitlab.kordlib.core.event.message.MessageUpdateEvent
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.topRoleLower
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.core.event.message.MessageUpdateEvent
 import mu.KotlinLogging
 import net.fabricmc.bot.conf.config
 import net.fabricmc.bot.defaultCheck
@@ -58,7 +58,7 @@ class FilterExtension(bot: ExtensibleBot) : Extension(bot) {
             )
 
             action {
-                with(it) {
+                with(event) {
                     for (filter in filters) {
                         var matchedConcerns = false
 
@@ -94,7 +94,7 @@ class FilterExtension(bot: ExtensibleBot) : Extension(bot) {
             )
 
             action {
-                with(it) {
+                with(event) {
                     for (filter in filters) {
                         var matchedConcerns = false
 
@@ -114,7 +114,7 @@ class FilterExtension(bot: ExtensibleBot) : Extension(bot) {
 
                         @Suppress("TooGenericExceptionCaught")  // Anything could happen here.
                         try {
-                            if (!filter.checkEdit(this, sanitizeMessage(new.content ?: ""))) break
+                            if (!filter.checkEdit(this, sanitizeMessage(new.content.value ?: ""))) break
                         } catch (e: Exception) {
                             logger.catching(e)
                         }

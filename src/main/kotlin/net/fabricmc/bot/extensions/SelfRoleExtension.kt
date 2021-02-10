@@ -1,6 +1,6 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.createEmbed
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.extensions.Extension
 

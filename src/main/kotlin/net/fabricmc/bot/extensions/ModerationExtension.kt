@@ -1,10 +1,10 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.common.entity.Permission
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.core.behavior.channel.edit
-import com.gitlab.kordlib.core.entity.PermissionOverwrite
-import com.gitlab.kordlib.core.entity.channel.*
+import dev.kord.common.entity.Permission
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.edit
+import dev.kord.core.entity.PermissionOverwrite
+import dev.kord.core.entity.channel.*
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
 import com.kotlindiscord.kord.extensions.commands.converters.optionalChannel
@@ -100,7 +100,7 @@ class ModerationExtension(bot: ExtensibleBot) : Extension(bot) {
                         field {
                             name = "Moderator"
                             value = "${author.mention} (${author.tag} / " +
-                                    "`${author.id.longValue}`)"
+                                    "`${author.id.value}`)"
                         }
 
                         timestamp = Instant.now()
@@ -113,7 +113,7 @@ class ModerationExtension(bot: ExtensibleBot) : Extension(bot) {
                         description = "Channel locked for ${durationObj.toHuman()}: ${channelObj.mention}"
                     }
 
-                    val channelId = channelObj.id.longValue
+                    val channelId = channelObj.id.value
 
                     if (lockJobs.containsKey(channelId)) {
                         scheduler.cancelJob(lockJobs[channelId]!!)
@@ -185,7 +185,7 @@ class ModerationExtension(bot: ExtensibleBot) : Extension(bot) {
                         field {
                             name = "Moderator"
                             value = "${author.mention} (${author.tag} / " +
-                                    "`${author.id.longValue}`)"
+                                    "`${author.id.value}`)"
                         }
 
                         timestamp = Instant.now()
@@ -198,7 +198,7 @@ class ModerationExtension(bot: ExtensibleBot) : Extension(bot) {
                         description = "Channel unlocked: ${channelObj.mention}"
                     }
 
-                    val channelId = channelObj.id.longValue
+                    val channelId = channelObj.id.value
 
                     if (lockJobs.containsKey(channelId)) {
                         scheduler.cancelJob(lockJobs[channelId]!!)
@@ -272,7 +272,7 @@ class ModerationExtension(bot: ExtensibleBot) : Extension(bot) {
                             field {
                                 name = "Moderator"
                                 value = "${author.mention} (${author.tag} / " +
-                                        "`${author.id.longValue}`)"
+                                        "`${author.id.value}`)"
                             }
 
                             timestamp = Instant.now()
@@ -294,7 +294,7 @@ class ModerationExtension(bot: ExtensibleBot) : Extension(bot) {
                             field {
                                 name = "Moderator"
                                 value = "${author.mention} (${author.tag} / " +
-                                        "`${author.id.longValue}`)"
+                                        "`${author.id.value}`)"
                             }
 
                             timestamp = Instant.now()

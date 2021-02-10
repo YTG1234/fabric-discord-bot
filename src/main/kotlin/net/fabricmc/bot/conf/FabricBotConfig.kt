@@ -1,10 +1,5 @@
 package net.fabricmc.bot.conf
 
-import com.gitlab.kordlib.common.entity.Snowflake
-import com.gitlab.kordlib.core.entity.Guild
-import com.gitlab.kordlib.core.entity.Role
-import com.gitlab.kordlib.core.entity.channel.Channel
-import com.gitlab.kordlib.core.entity.channel.GuildMessageChannel
 import com.squareup.sqldelight.sqlite.driver.JdbcDriver
 import com.squareup.sqldelight.sqlite.driver.asJdbcDriver
 import com.uchuhimo.konf.Config
@@ -12,6 +7,11 @@ import com.uchuhimo.konf.Feature
 import com.uchuhimo.konf.source.toml
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.Role
+import dev.kord.core.entity.channel.Channel
+import dev.kord.core.entity.channel.GuildMessageChannel
 import net.fabricmc.bot.MissingChannelException
 import net.fabricmc.bot.MissingGuildException
 import net.fabricmc.bot.MissingRoleException
@@ -126,9 +126,10 @@ class FabricBotConfig {
             Channels.ACTION_LOG_CATEGORY -> Snowflake(config[ChannelsSpec.actionLogCategory])
             Channels.BOT_COMMANDS -> Snowflake(config[ChannelsSpec.botCommands])
             Channels.MODERATOR_LOG -> Snowflake(config[ChannelsSpec.moderatorLog])
+            Channels.PLAYER_SUPPORT -> Snowflake(config[ChannelsSpec.playerSupport])
         }
 
-        return bot.kord.getChannel(snowflake) ?: throw MissingChannelException(snowflake.longValue)
+        return bot.kord.getChannel(snowflake) ?: throw MissingChannelException(snowflake.value)
     }
 
     /**
@@ -163,7 +164,7 @@ class FabricBotConfig {
     suspend fun getRole(role: Roles): Role {
         val snowflake = getRoleSnowflake(role)
 
-        return getGuild().getRoleOrNull(snowflake) ?: throw MissingRoleException(snowflake.longValue)
+        return getGuild().getRoleOrNull(snowflake) ?: throw MissingRoleException(snowflake.value)
     }
 
     /**
@@ -174,7 +175,7 @@ class FabricBotConfig {
      */
     @Throws(MissingGuildException::class)
     suspend fun getGuild(): Guild =
-            bot.kord.getGuild(guildSnowflake) ?: throw MissingGuildException(guildSnowflake.longValue)
+            bot.kord.getGuild(guildSnowflake) ?: throw MissingGuildException(guildSnowflake.value)
 
     /**
      * Attempt to retrieve the [Guild] object for the configured emoji guild.
@@ -184,7 +185,7 @@ class FabricBotConfig {
      */
     @Throws(MissingGuildException::class)
     suspend fun getEmojiGuild(): Guild =
-            bot.kord.getGuild(emojiGuildSnowflake) ?: throw MissingGuildException(emojiGuildSnowflake.longValue)
+            bot.kord.getGuild(emojiGuildSnowflake) ?: throw MissingGuildException(emojiGuildSnowflake.value)
 
     /**
      * Get the list of channels Jira updates should be sent to.

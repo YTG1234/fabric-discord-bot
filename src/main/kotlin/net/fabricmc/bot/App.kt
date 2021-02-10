@@ -3,22 +3,25 @@
  */
 package net.fabricmc.bot
 
-import com.gitlab.kordlib.gateway.Intents
-import com.gitlab.kordlib.gateway.PrivilegedIntent
 import com.kotlindiscord.kord.extensions.ExtensibleBot
+import dev.kord.gateway.Intents
+import dev.kord.gateway.PrivilegedIntent
+import io.github.ytg1234.kordextbackgroundcat.util.backgroundCatDefaults
+import io.github.ytg1234.kordextbackgroundcat.util.backgroundcatExt
 import mu.KotlinLogging
 import net.fabricmc.bot.conf.buildInfo
 import net.fabricmc.bot.conf.config
 import net.fabricmc.bot.database.Migrator
+import net.fabricmc.bot.enums.Channels
 import net.fabricmc.bot.extensions.*
 
 /** The current instance of the bot. **/
 val bot = ExtensibleBot(
-        prefix = config.prefix,
-        token = config.token,
+    prefix = config.prefix,
+    token = config.token,
 
-        guildsToFill = listOf(config.guildSnowflake.value),
-        fillPresences = true
+    guildsToFill = listOf(config.guildSnowflake),
+    fillPresences = true
 )
 
 /**
@@ -32,29 +35,32 @@ suspend fun main() {
 
     Migrator.migrate()
 
-    bot.addExtension(ActionLogExtension::class)
-    bot.addExtension(CleanExtension::class)
-    bot.addExtension(DefconExtension::class)
-    bot.addExtension(EmojiExtension::class)
-    bot.addExtension(FilterExtension::class)
-    bot.addExtension(GitHubExtension::class)
-    bot.addExtension(InfractionsExtension::class)
-    bot.addExtension(LoggingExtension::class)
-    bot.addExtension(MappingsExtension::class)
-    bot.addExtension(ModerationExtension::class)
-    bot.addExtension(SelfRoleExtension::class)
-    bot.addExtension(SyncExtension::class)
-    bot.addExtension(TagsExtension::class)
-    bot.addExtension(UtilsExtension::class)
-    bot.addExtension(VersionCheckExtension::class)
+    bot.addExtension(::ActionLogExtension)
+    bot.addExtension(::CleanExtension)
+    bot.addExtension(::DefconExtension)
+    bot.addExtension(::EmojiExtension)
+    bot.addExtension(::FilterExtension)
+    bot.addExtension(::GitHubExtension)
+    bot.addExtension(::InfractionsExtension)
+    bot.addExtension(::LoggingExtension)
+    bot.addExtension(::MappingsExtension)
+    bot.addExtension(::ModerationExtension)
+    bot.addExtension(::SelfRoleExtension)
+    bot.addExtension(::SyncExtension)
+    bot.addExtension(::TagsExtension)
+    bot.addExtension(::UtilsExtension)
+    bot.addExtension(::VersionCheckExtension)
 
-    bot.start(
-            presenceBuilder = {
-                playing("${config.prefix}help for command help")
-            },
+    bot.backgroundcatExt { defaultCheck(it) && it.message.channel == config.getChannel(Channels.PLAYER_SUPPORT) }
+    bot.backgroundCatDefaults(multiMc = false, nonFabric = false, fabric = true)
 
-            intents = {
-                +Intents.all
-            }
-    )
+    bot.start {
+        presence {
+            playing("${config.prefix}help for command help")
+        }
+
+        intents {
+            +Intents.all
+        }
+    }
 }

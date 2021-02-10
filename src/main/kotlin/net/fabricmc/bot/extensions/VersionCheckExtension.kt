@@ -1,14 +1,15 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.common.entity.ChannelType
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.core.event.gateway.ReadyEvent
+import dev.kord.common.entity.ChannelType
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.event.gateway.ReadyEvent
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
 import com.kotlindiscord.kord.extensions.commands.converters.string
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.utils.respond
+import dev.kord.common.annotation.KordPreview
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
@@ -230,6 +231,7 @@ class VersionCheckExtension(bot: ExtensibleBot) : Extension(bot) {
         checkJob?.cancel()
     }
 
+    @OptIn(KordPreview::class)
     private suspend fun updateCheck() {
         if (currentlyChecking) {
             logger.warn { "Looks like multiple checks are running concurrently - skipping check." }

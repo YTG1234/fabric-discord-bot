@@ -39,7 +39,7 @@ allprojects {
 
     	maven {
     	    name = "KotDis"
-     	   url = "https://maven.kotlindiscord.com/repository/maven-snapshots/"
+     	   	url = "https://maven.kotlindiscord.com/repository/maven-releases/"
     	}
 
     	maven {
@@ -58,7 +58,7 @@ allprojects {
 		implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 		// KordExt
-		implementation("com.kotlindiscord.kord.extensions:kord-extensions:1.3-SNAPSHOT")
+		implementation("com.kotlindiscord.kord.extensions:kord-extensions:1.4.0-RC6")
 
 		// Logging
 		implementation("ch.qos.logback:logback-classic:1.2.3")
@@ -70,7 +70,7 @@ allprojects {
     	kotlinOptions.jvmTarget = "11"
    		kotlinOptions.useIR = true
     	kotlinOptions.freeCompilerArgs = [
-            "-XXLanguage:+NewInference",
+            // "-XXLanguage:+NewInference",
             "-Xopt-in=kotlin.RequiresOptIn"
     	]
 	}
@@ -104,7 +104,7 @@ repositories {
 
     maven {
         name = "JitPack"
-        url = "https://jitpack.io"
+        url = "https://jitpack.io/"
     }
 }
 
@@ -138,6 +138,12 @@ dependencies {
 
     // Memoization
     implementation("com.github.aballano:mnemonik:2.0.1")
+
+	// Errors
+	implementation("com.github.YTG1234:kordext-backgroundcat-base:819c24")
+	implementation("com.github.YTG1234:kordext-backgroundcat-defaults:043ac8") {
+		exclude(module: "kordext-backgroundcat-base")
+	}
 }
 
 application {

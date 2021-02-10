@@ -1,14 +1,13 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.common.entity.GuildFeature
-import com.gitlab.kordlib.common.entity.Snowflake
-import com.gitlab.kordlib.common.entity.Status
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.core.entity.channel.Category
-import com.gitlab.kordlib.core.entity.channel.NewsChannel
-import com.gitlab.kordlib.core.entity.channel.TextChannel
-import com.gitlab.kordlib.core.entity.channel.VoiceChannel
-import com.gitlab.kordlib.rest.Image
+import dev.kord.common.entity.GuildFeature
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.entity.channel.Category
+import dev.kord.core.entity.channel.NewsChannel
+import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.channel.VoiceChannel
+import dev.kord.rest.Image
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
 import com.kotlindiscord.kord.extensions.commands.converters.optionalNumber
@@ -16,6 +15,7 @@ import com.kotlindiscord.kord.extensions.commands.converters.optionalUser
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.utils.*
+import dev.kord.common.entity.PresenceStatus
 import kotlinx.coroutines.flow.toList
 import net.fabricmc.bot.*
 import net.fabricmc.bot.conf.config
@@ -56,13 +56,13 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
                         }
 
                         val isModerator = topRoleHigherOrEqual(config.getRole(Roles.TRAINEE_MODERATOR))(event)
-                        var (memberId, memberMessage) = getMemberId(user, userId)
+                        var (memberId, _) = getMemberId(user, userId)
 
                         if (memberId == null) {
-                            memberId = message.data.authorId
+                            memberId = message.data.authorId.value
                         }
 
-                        if (memberId != message.data.authorId && !isModerator) {
+                        if (memberId != message.data.authorId.value && !isModerator) {
                             message.deleteWithDelay(DELETE_DELAY)
 
                             message.respond("Only staff members may request information about other users.")
@@ -148,11 +148,12 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
                 val emojiOffline = EmojiExtension.getEmoji(Emojis.STATUS_OFFLINE)
                 val emojiOnline = EmojiExtension.getEmoji(Emojis.STATUS_ONLINE)
 
-                val statuses: MutableMap<Status, Long> = mutableMapOf(
-                        Status.Idle to 0,
-                        Status.DnD to 0,
-                        Status.Offline to 0,
-                        Status.Online to 0,
+
+                val statuses: MutableMap<PresenceStatus, Long> = mutableMapOf(
+                    PresenceStatus.Idle to 0,
+                    PresenceStatus.DoNotDisturb to 0,
+                    PresenceStatus.Offline to 0,
+                    PresenceStatus.Online to 0,
                 )
 
                 val presences = guild.presences.toList()
@@ -161,7 +162,7 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
                     statuses[it.status] = statuses[it.status]!!.plus(1)
                 }
 
-                val offline = members.size - presences.size + statuses[Status.Offline]!!
+                val offline = members.size - presences.size + statuses[PresenceStatus.Offline]!!
 
                 val channels: MutableMap<String, Long> = mutableMapOf(
                         "Category" to 0,
@@ -181,7 +182,7 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
                 }
 
-                val newestEmoji = guild.emojis.sortedBy { it.id.timeStamp }.lastOrNull()
+                val newestEmoji = guild.emojis.toList().sortedBy { it.id.timeStamp }.lastOrNull()
 
                 message.channel.createEmbed {
                     title = guild.name
@@ -210,9 +211,9 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
 
                         value = "**Total:** ${members.size}\n\n" +
 
-                                "$emojiOnline ${statuses[Status.Online]}\n" +
-                                "$emojiAway ${statuses[Status.Idle]}\n" +
-                                "$emojiDnd ${statuses[Status.DnD]}\n" +
+                                "$emojiOnline ${statuses[PresenceStatus.Online]}\n" +
+                                "$emojiAway ${statuses[PresenceStatus.Idle]}\n" +
+                                "$emojiDnd ${statuses[PresenceStatus.DoNotDisturb]}\n" +
                                 "$emojiOffline $offline"
                     }
 
@@ -220,7 +221,7 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
                         name = "Emojis"
                         inline = true
 
-                        value = "**Total:** ${guild.emojis.size}"
+                        value = "**Total:** ${guild.emojis.toList().size}"
 
                         if (newestEmoji != null) {
                             value += "\n**Latest:** ${newestEmoji.mention}"
@@ -233,7 +234,7 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
 
                         value = if (guild.features.isNotEmpty()) {
                             guild.features
-                                    .filter { it != GuildFeature.Unknown }
+                                    .filter { it !is GuildFeature.Unknown }
                                     .joinToString("\n") { "`${it.value}`" }
                         } else {
                             "No features."
@@ -253,6 +254,5 @@ class UtilsExtension(bot: ExtensibleBot) : Extension(bot) {
     class UtilsUserArgs : Arguments() {
         val user by optionalUser("user")
         val userId by optionalNumber("userId")
-
     }
 }

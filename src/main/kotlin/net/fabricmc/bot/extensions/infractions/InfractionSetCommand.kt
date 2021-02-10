@@ -1,11 +1,11 @@
 package net.fabricmc.bot.extensions.infractions
 
-import com.gitlab.kordlib.common.entity.Snowflake
-import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.core.entity.Message
-import com.gitlab.kordlib.core.entity.User
-import com.gitlab.kordlib.core.event.message.MessageCreateEvent
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
+import dev.kord.core.event.message.MessageCreateEvent
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
 import com.kotlindiscord.kord.extensions.commands.Command
 import com.kotlindiscord.kord.extensions.commands.CommandContext
@@ -171,7 +171,7 @@ class InfractionSetCommand(extension: Extension, private val type: InfractionTyp
         var descriptionText = getInfractionMessage(true, infraction, expires)
 
         descriptionText += "\n\n**User ID:** `${infraction.target_id}`"
-        descriptionText += "\n**Moderator:** ${actor.mention} (${actor.tag} / `${actor.id.longValue}`)"
+        descriptionText += "\n**Moderator:** ${actor.mention} (${actor.tag} / `${actor.id.value}`)"
 
         modLog {
             color = Colours.NEGATIVE
@@ -243,7 +243,7 @@ class InfractionSetCommand(extension: Extension, private val type: InfractionTyp
             if (expires != null) {
                 queries.addInfraction(
                         reason,
-                        author.id.longValue,
+                        author.id.value,
                         memberId,
                         instantToMysql(expires),
                         true,
@@ -252,7 +252,7 @@ class InfractionSetCommand(extension: Extension, private val type: InfractionTyp
             } else {
                 queries.addInfraction(
                         reason,
-                        author.id.longValue,
+                        author.id.value,
                         memberId,
                         null,  // null for forever
                         true,

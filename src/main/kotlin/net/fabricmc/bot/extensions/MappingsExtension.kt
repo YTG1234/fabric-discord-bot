@@ -1,13 +1,16 @@
 package net.fabricmc.bot.extensions
 
 import com.kotlindiscord.kord.extensions.ExtensibleBot
-import com.kotlindiscord.kord.extensions.Paginator
 import com.kotlindiscord.kord.extensions.commands.CommandContext
 import com.kotlindiscord.kord.extensions.commands.converters.optionalString
 import com.kotlindiscord.kord.extensions.commands.converters.string
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.pagination.Paginator
+import com.kotlindiscord.kord.extensions.pagination.pages.Page
+import com.kotlindiscord.kord.extensions.pagination.pages.Pages
 import com.kotlindiscord.kord.extensions.utils.respond
+import dev.kord.common.annotation.KordPreview
 import io.ktor.client.features.ClientRequestException
 import mu.KotlinLogging
 import net.fabricmc.bot.conf.config
@@ -39,13 +42,15 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
 
         event<LatestMinecraftVersionsRetrieved> {
             action {
-                logger.debug { "Caching latest versions: ${it.versions.release} / ${it.versions.snapshot}" }
+                event.also {
+                    logger.debug { "Caching latest versions: ${it.versions.release} / ${it.versions.snapshot}" }
 
-                @Suppress("TooGenericExceptionCaught")
-                try {
-                    mappings.cacheMappings(it.versions.release, it.versions.snapshot)
-                } catch (t: Throwable) {
-                    logger.error(t) { "Failed to cache mappings." }
+                    @Suppress("TooGenericExceptionCaught")
+                    try {
+                        mappings.cacheMappings(it.versions.release, it.versions.snapshot)
+                    } catch (t: Throwable) {
+                        logger.error(t) { "Failed to cache mappings." }
+                    }
                 }
             }
         }
@@ -270,8 +275,11 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
         }
     }
 
+    @OptIn(KordPreview::class)
     private suspend fun paginate(context: CommandContext, version: String, results: List<MappingsResult>) {
-        val pages = results.map {
+        val pages = Pages()
+
+        results.asSequence().map {
             var page = ""
 
             val classDef = it.classDef
@@ -308,12 +316,14 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
             }
 
             page
-        }.toList()
+        }.forEach {
+            pages.addPage(Page(it, "Minecraft $version / ${results.size} result" + if (results.size > 1) "s" else ""))
+        }
 
         Paginator(
                 bot,
                 context.message.channel,
-                "Minecraft $version / ${results.size} result" + if (results.size > 1) "s" else "",
+                context.message,
                 pages,
                 context.message.author,
                 PAGE_TIMEOUT,

@@ -25,4 +25,9 @@ object ChannelsSpec : ConfigSpec() {
 
     /** Category used for rotating action logs. **/
     val actionLogCategory by required<Long>()
+
+    /**
+     * Configured player support channel ID.
+     */
+    val playerSupport by required<Long>()
 }

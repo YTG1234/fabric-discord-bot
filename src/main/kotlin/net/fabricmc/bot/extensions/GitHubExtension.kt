@@ -1,11 +1,11 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
 import com.kotlindiscord.kord.extensions.commands.converters.string
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import dev.kord.core.behavior.channel.createEmbed
 import io.ktor.client.HttpClient
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.*
