@@ -1,12 +1,12 @@
 package net.fabricmc.bot.extensions
 
-import com.gitlab.kordlib.cache.api.query
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.checks.topRoleHigherOrEqual
 import com.kotlindiscord.kord.extensions.commands.converters.*
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.utils.*
+import dev.kord.cache.api.query
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.cache.data.MessageData
 import dev.kord.core.entity.Message

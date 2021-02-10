@@ -240,13 +240,7 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
 
                         if (data.colour != null) {
                             val colourString = data.colour!!.toLowerCase()
-
-                            val values = colourString.removePrefix("#").chunked(2)
-                            color = Colours.fromName(colourString) ?: Color(
-                                Integer.parseInt(values[0], sixteen),
-                                Integer.parseInt(values[1], sixteen),
-                                Integer.parseInt(values[2], sixteen)
-                            )
+                            color = Colours.fromName(colourString) ?: Color(Integer.decode(colourString))
                         }
                     }
                 }
@@ -632,9 +626,5 @@ class TagsExtension(bot: ExtensibleBot) : Extension(bot) {
     @Suppress("UndocumentedPublicProperty")
     class TagSearchArgs : Arguments() {
         val query by coalescedString("query")
-    }
-
-    companion object {
-        private const val sixteen = 16 // I hate detekt
     }
 }

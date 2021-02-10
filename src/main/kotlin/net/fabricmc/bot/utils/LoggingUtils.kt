@@ -1,13 +1,13 @@
 package net.fabricmc.bot.utils
 
 import com.kotlindiscord.kord.extensions.utils.ensureWebhook
+import dev.kord.common.entity.AllowedMentionType
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.execute
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.MessageCreateBuilder
-import dev.kord.rest.json.request.AllowedMentionType
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import net.fabricmc.bot.bot

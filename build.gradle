@@ -32,11 +32,6 @@ allprojects {
 		mavenCentral()
 		jcenter()
 
-		maven {
-        	name = "Kord"
-        	url = "https://dl.bintray.com/kordlib/Kord"
-    	}
-
     	maven {
     	    name = "KotDis"
      	   	url = "https://maven.kotlindiscord.com/repository/maven-releases/"
@@ -46,6 +41,10 @@ allprojects {
     	    name = "Eclipse"
     	    url = "https://repo.eclipse.org/content/groups/releases/"
     	}
+
+		 maven {
+		 	 url = "https://oss.sonatype.org/content/repositories/snapshots"
+		 }
 	}
 
 	dependencies {
@@ -57,8 +56,11 @@ allprojects {
 		implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 		implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-		// KordExt
-		implementation("com.kotlindiscord.kord.extensions:kord-extensions:1.4.0-RC6")
+		// Kord & Ext
+		implementation("dev.kord:kord-core:0.7.0-SNAPSHOT")
+		implementation("com.kotlindiscord.kord.extensions:kord-extensions:1.4.0-RC6") {
+			exclude(group: "dev.kord")
+		}
 
 		// Logging
 		implementation("ch.qos.logback:logback-classic:1.2.3")
@@ -140,9 +142,14 @@ dependencies {
     implementation("com.github.aballano:mnemonik:2.0.1")
 
 	// Errors
-	implementation("com.github.YTG1234:kordext-backgroundcat-base:819c24")
+	implementation("com.github.YTG1234:kordext-backgroundcat-base:819c24") {
+		exclude(module: "kord-extensions")
+		exclude(group: "dev.kord")
+	}
 	implementation("com.github.YTG1234:kordext-backgroundcat-defaults:043ac8") {
 		exclude(module: "kordext-backgroundcat-base")
+		exclude(module: "kord-extensions")
+		exclude(group: "dev.kord")
 	}
 }
 

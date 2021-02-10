@@ -146,14 +146,16 @@ class TagParser(private val rootPath: String) {
                 "Tag '$name' is an alias tag, but it contains Markdown content. Please consider removing it."
             }
         } else if (tagData is EmbedTag) {
-            logger.error {
-                "Embed tag '$name' has the colour property set in the embed object. Set it at root level instead."
+            if (tagData.embed.color.asNullable != null) {
+                logger.error {
+                    "Embed tag '$name' has the colour property set in the embed object. Set it at root level instead."
+                }
+                return Pair(
+                    null,
+                    "Embed tag '$name' has the colour property set in the embed object. " +
+                            "Set it at root level instead."
+                )
             }
-            return Pair(
-                null,
-                "Embed tag '$name' has the colour property set in the embed object. " +
-                        "Set it at root level instead."
-            )
         }
 
         val tag = Tag(normalise(name), name, tagData, markdown)
